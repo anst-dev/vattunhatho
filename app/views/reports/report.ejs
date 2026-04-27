@@ -1,0 +1,97 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h1>Báo cáo vật tư</h1>
+</div>
+
+<!-- Filter Form -->
+<div class="filter-card">
+  <form method="GET" action="/report" class="filter-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Từ ngày</label>
+        <input type="date" name="from_date" value="<%= fromDate %>">
+      </div>
+      <div class="form-group">
+        <label>Đến ngày</label>
+        <input type="date" name="to_date" value="<%= toDate %>">
+      </div>
+      <div class="form-group">
+        <label>Nhóm vật tư</label>
+        <select name="category">
+          <option value="all" <%= category === 'all' ? 'selected' : '' %>>Tất cả</option>
+          <option value="xi_mang_sat_thep" <%= category === 'xi_mang_sat_thep' ? 'selected' : '' %>>Xi măng sắt thép</option>
+          <option value="da_cat" <%= category === 'da_cat' ? 'selected' : '' %>>Đá cát</option>
+        </select>
+      </div>
+      <div class="form-group filter-actions">
+        <button type="submit" class="btn btn-primary">
+          <span class="material-symbols-outlined">filter_alt</span> Lọc
+        </button>
+        <a href="/report/print?from_date=<%= fromDate %>&to_date=<%= toDate %>&category=<%= category %>"
+           class="btn btn-outline" target="_blank">
+          <span class="material-symbols-outlined">print</span> In / PDF
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Reports -->
+<% reports.forEach(report => { %>
+<div class="report-section">
+  <h2 class="report-title">
+    LỊCH SỬ CUNG CẤP VẬT TƯ
+    <span class="report-cat"><%= categoryNames[report.category] %></span>
+    NHÀ THỜ
+  </h2>
+  <p class="report-subtitle">
+    Từ ngày <%= formatDate(fromDate) %> đến ngày <%= formatDate(toDate) %>
+  </p>
+
+  <div class="table-wrapper">
+    <table class="data-table report-table">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Ngày</th>
+          <th>Tên vật tư</th>
+          <th>Đơn vị tính</th>
+          <th class="text-right">Số lượng</th>
+          <th class="text-right">Đơn giá</th>
+          <th class="text-right">Thành tiền</th>
+          <th>Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% report.supplies.forEach((s, i) => { %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><%= formatDate(s.date) %></td>
+          <td><%= s.material_name %></td>
+          <td><%= s.unit %></td>
+          <td class="text-right"><%= s.quantity %></td>
+          <td class="text-right"><%= formatVND(s.unit_price) %></td>
+          <td class="text-right"><strong><%= formatVND(s.total_amount) %></strong></td>
+          <td><%= s.note || '' %></td>
+        </tr>
+        <% }) %>
+        <% if (report.supplies.length === 0) { %>
+        <tr><td colspan="8" class="text-center">Không có dữ liệu trong khoảng thời gian này</td></tr>
+        <% } %>
+      </tbody>
+      <% if (report.supplies.length > 0) { %>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="6"><strong>Tổng tiền</strong></td>
+          <td class="text-right"><strong><%= formatVND(report.totalAmount) %></strong></td>
+          <td></td>
+        </tr>
+      </tfoot>
+      <% } %>
+    </table>
+  </div>
+</div>
+<% }) %>
+
+<%- include('../partials/footer') %>

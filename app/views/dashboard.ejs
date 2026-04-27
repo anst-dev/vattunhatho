@@ -1,0 +1,84 @@
+<%- include('partials/header') %>
+
+<div class="page-header">
+  <h1>Tổng quan</h1>
+  <p class="subtitle">Hệ thống quản lý vật tư xây dựng nhà thờ</p>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card stat-primary">
+    <div class="stat-icon">
+      <span class="material-symbols-outlined">inventory_2</span>
+    </div>
+    <div class="stat-info">
+      <span class="stat-value"><%= data.totalMaterials || 0 %></span>
+      <span class="stat-label">Vật tư</span>
+    </div>
+  </div>
+
+  <div class="stat-card stat-success">
+    <div class="stat-icon">
+      <span class="material-symbols-outlined">receipt_long</span>
+    </div>
+    <div class="stat-info">
+      <span class="stat-value"><%= data.todayCount || 0 %></span>
+      <span class="stat-label">Nhập hôm nay</span>
+    </div>
+  </div>
+
+  <div class="stat-card stat-warning">
+    <div class="stat-icon">
+      <span class="material-symbols-outlined">payments</span>
+    </div>
+    <div class="stat-info">
+      <span class="stat-value"><%= formatVND(data.todayTotal || 0) %></span>
+      <span class="stat-label">Tiền hôm nay</span>
+    </div>
+  </div>
+
+  <div class="stat-card stat-info">
+    <div class="stat-icon">
+      <span class="material-symbols-outlined">trending_up</span>
+    </div>
+    <div class="stat-info">
+      <span class="stat-value"><%= data.totalSupplies || 0 %></span>
+      <span class="stat-label">Tổng phiếu nhập</span>
+    </div>
+  </div>
+</div>
+
+<div class="section-grid">
+  <div class="section-card">
+    <div class="section-header">
+      <h2>Xi măng sắt thép</h2>
+      <a href="/supplies/entry/xi_mang_sat_thep" class="btn btn-primary btn-sm">
+        <span class="material-symbols-outlined">add</span> Nhập
+      </a>
+    </div>
+    <div class="section-body">
+      <p class="section-total"><%= formatVND(data.xiMangTotal || 0) %></p>
+      <a href="/supplies/history/xi_mang_sat_thep" class="link">Xem lịch sử →</a>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <h2>Đá cát</h2>
+      <a href="/supplies/entry/da_cat" class="btn btn-primary btn-sm">
+        <span class="material-symbols-outlined">add</span> Nhập
+      </a>
+    </div>
+    <div class="section-body">
+      <p class="section-total"><%= formatVND(data.daCatTotal || 0) %></p>
+      <a href="/supplies/history/da_cat" class="link">Xem lịch sử →</a>
+    </div>
+  </div>
+</div>
+
+<div class="quick-actions">
+  <a href="/report" class="btn btn-outline btn-lg">
+    <span class="material-symbols-outlined">description</span> Báo cáo tổng hợp
+  </a>
+</div>
+
+<%- include('partials/footer') %>

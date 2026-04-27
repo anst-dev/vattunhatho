@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo cáo vật tư - In</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 15mm 12mm 15mm 12mm;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Times New Roman', 'Segoe UI', Tahoma, sans-serif;
+      font-size: 11pt;
+      color: #111;
+      line-height: 1.4;
+      background: white;
+    }
+
+    .report-page {
+      page-break-after: always;
+      padding: 0;
+    }
+    .report-page:last-child {
+      page-break-after: auto;
+    }
+
+    .report-header {
+      text-align: center;
+      margin-bottom: 6mm;
+      border-bottom: 2px solid #333;
+      padding-bottom: 4mm;
+    }
+
+    .report-header h1 {
+      font-size: 15pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2mm;
+    }
+
+    .report-header .report-category {
+      font-size: 12pt;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .report-date-range {
+      text-align: center;
+      font-size: 11pt;
+      margin-bottom: 5mm;
+      font-style: italic;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10pt;
+    }
+
+    table thead th {
+      border: 1px solid #333;
+      background: #e8e8e8;
+      padding: 3mm 2mm;
+      font-weight: 700;
+      text-align: center;
+      font-size: 9.5pt;
+    }
+
+    table tbody td {
+      border: 1px solid #666;
+      padding: 2mm 2mm;
+      vertical-align: middle;
+    }
+
+    table tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .col-stt { width: 6%; text-align: center; }
+    .col-date { width: 11%; text-align: center; }
+    .col-name { width: 22%; }
+    .col-unit { width: 9%; text-align: center; }
+    .col-qty { width: 8%; text-align: right; }
+    .col-price { width: 14%; text-align: right; }
+    .col-total { width: 15%; text-align: right; }
+    .col-note { width: 15%; font-size: 9pt; }
+
+    tfoot {
+      border-top: 2px solid #333;
+    }
+
+    tfoot td {
+      border: 1px solid #333;
+      background: #e0e0e0;
+      padding: 3mm 2mm;
+      font-weight: 700;
+      font-size: 10.5pt;
+    }
+
+    .footer-signature {
+      margin-top: 12mm;
+      display: flex;
+      justify-content: space-between;
+      page-break-inside: avoid;
+    }
+
+    .signature-block {
+      text-align: center;
+      width: 40%;
+    }
+
+    .signature-block .sig-title {
+      font-weight: 600;
+      font-size: 11pt;
+      margin-bottom: 15mm;
+    }
+
+    .signature-block .sig-name {
+      font-weight: 700;
+      font-size: 11pt;
+      border-top: 1px dashed #666;
+      padding-top: 2mm;
+    }
+
+    .no-print {
+      display: none;
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    @media screen {
+      body { background: #f0f0f0; padding: 20px; }
+      .report-page {
+        background: white;
+        max-width: 210mm;
+        margin: 0 auto 20px;
+        padding: 15mm 12mm;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      }
+      .no-print { display: block; }
+      .print-bar {
+        background: #333;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .print-bar button {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 8px 24px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 0 8px;
+      }
+      .print-bar button:hover { background: #45a049; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print print-bar">
+    <button onclick="window.print()">🖨️ In / Lưu PDF</button>
+    <button onclick="window.close()">Đóng</button>
+  </div>
+
+  <% reports.forEach((report, rIdx) => { %>
+  <div class="report-page">
+    <!-- Header -->
+    <div class="report-header">
+      <h1>LỊCH SỬ CUNG CẤP VẬT TƯ</h1>
+      <div class="report-category"><%= categoryNames[report.category] %> NHÀ THỜ</div>
+    </div>
+
+    <div class="report-date-range">
+      Từ ngày <strong><%= formatDate(fromDate) %></strong> đến ngày <strong><%= formatDate(toDate) %></strong>
+    </div>
+
+    <!-- Table -->
+    <table>
+      <thead>
+        <tr>
+          <th class="col-stt">STT</th>
+          <th class="col-date">Ngày</th>
+          <th class="col-name">Tên vật tư</th>
+          <th class="col-unit">Đơn vị tính</th>
+          <th class="col-qty">Số lượng</th>
+          <th class="col-price">Đơn giá</th>
+          <th class="col-total">Thành tiền</th>
+          <th class="col-note">Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% report.supplies.forEach((s, i) => { %>
+        <tr>
+          <td class="col-stt"><%= i + 1 %></td>
+          <td class="col-date"><%= formatDate(s.date) %></td>
+          <td class="col-name"><%= s.material_name %></td>
+          <td class="col-unit"><%= s.unit %></td>
+          <td class="col-qty"><%= s.quantity %></td>
+          <td class="col-price"><%= formatVND(s.unit_price) %></td>
+          <td class="col-total"><strong><%= formatVND(s.total_amount) %></strong></td>
+          <td class="col-note"><%= s.note || '' %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="6" style="text-align:right"><strong>Tổng tiền</strong></td>
+          <td class="text-right"><strong><%= formatVND(report.totalAmount) %></strong></td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Signature -->
+    <div class="footer-signature">
+      <div class="signature-block">
+        <div class="sig-title">Người cung cấp</div>
+        <div class="sig-name">(Ký, ghi rõ họ tên)</div>
+      </div>
+      <div class="signature-block">
+        <div class="sig-title">Người nhận</div>
+        <div class="sig-name">(Ký, ghi rõ họ tên)</div>
+      </div>
+    </div>
+  </div>
+  <% }) %>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h1>Danh sách vật tư</h1>
+  <div class="page-actions">
+    <button type="button" class="btn btn-primary" onclick="document.getElementById('addModal').style.display='flex'">
+      <span class="material-symbols-outlined">add</span> Thêm vật tư
+    </button>
+  </div>
+</div>
+
+<!-- Filter -->
+<div class="filter-bar">
+  <a href="/materials" class="chip <%= !currentCategory ? 'active' : '' %>">Tất cả</a>
+  <a href="/materials?category=xi_mang_sat_thep" class="chip <%= currentCategory === 'xi_mang_sat_thep' ? 'active' : '' %>">Xi măng sắt thép</a>
+  <a href="/materials?category=da_cat" class="chip <%= currentCategory === 'da_cat' ? 'active' : '' %>">Đá cát</a>
+</div>
+
+<div class="table-wrapper">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Mã</th>
+        <th>Tên vật tư</th>
+        <th>Đơn vị</th>
+        <th>Đơn giá mặc định</th>
+        <th>Nhóm</th>
+        <th>Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% materials.forEach(m => { %>
+      <tr>
+        <td><%= m.id %></td>
+        <td><strong><%= m.name %></strong></td>
+        <td><%= m.unit %></td>
+        <td class="text-right"><%= Number(m.default_price).toLocaleString('vi-VN') %> đ</td>
+        <td><span class="badge badge-<%= m.category === 'xi_mang_sat_thep' ? 'blue' : 'green' %>"><%= categories[m.category] || m.category %></span></td>
+        <td class="actions-cell">
+          <button class="btn-icon" onclick="editMaterial('<%= m.id %>', '<%= m.name.replace(/'/g, "\\'") %>', '<%= m.unit %>', '<%= m.default_price %>', '<%= m.category %>')" title="Sửa">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+          <form method="POST" action="/materials/<%= m.id %>/delete" style="display:inline" onsubmit="return confirm('Xóa vật tư này?')">
+            <button type="submit" class="btn-icon btn-danger-icon" title="Xóa">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+      <% if (materials.length === 0) { %>
+      <tr><td colspan="6" class="text-center">Chưa có vật tư nào</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Modal -->
+<div id="addModal" class="modal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Thêm vật tư mới</h2>
+      <button class="btn-icon" onclick="document.getElementById('addModal').style.display='none'">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <form method="POST" action="/materials/create">
+      <div class="form-group">
+        <label>Tên vật tư <span class="required">*</span></label>
+        <input type="text" name="name" required placeholder="Ví dụ: Xi măng long sơn">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Đơn vị <span class="required">*</span></label>
+          <input type="text" name="unit" required placeholder="Tấn, Kg, Cây, xe...">
+        </div>
+        <div class="form-group">
+          <label>Đơn giá mặc định</label>
+          <input type="number" name="default_price" min="0" value="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nhóm <span class="required">*</span></label>
+        <select name="category" required>
+          <option value="xi_mang_sat_thep">Xi măng sắt thép</option>
+          <option value="da_cat">Đá cát</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('addModal').style.display='none'">Hủy</button>
+        <button type="submit" class="btn btn-primary">Thêm</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Sửa vật tư</h2>
+      <button class="btn-icon" onclick="document.getElementById('editModal').style.display='none'">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <form id="editForm" method="POST" action="">
+      <input type="hidden" name="id" id="edit_id">
+      <div class="form-group">
+        <label>Tên vật tư</label>
+        <input type="text" name="name" id="edit_name" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Đơn vị</label>
+          <input type="text" name="unit" id="edit_unit" required>
+        </div>
+        <div class="form-group">
+          <label>Đơn giá</label>
+          <input type="number" name="default_price" id="edit_price" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nhóm</label>
+        <select name="category" id="edit_category">
+          <option value="xi_mang_sat_thep">Xi măng sắt thép</option>
+          <option value="da_cat">Đá cát</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('editModal').style.display='none'">Hủy</button>
+        <button type="submit" class="btn btn-primary">Cập nhật</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function editMaterial(id, name, unit, price, category) {
+  document.getElementById('edit_id').value = id;
+  document.getElementById('edit_name').value = name;
+  document.getElementById('edit_unit').value = unit;
+  document.getElementById('edit_price').value = price;
+  document.getElementById('edit_category').value = category;
+  document.getElementById('editForm').action = '/materials/' + id + '/update';
+  document.getElementById('editModal').style.display = 'flex';
+}
+</script>
+
+<%- include('../partials/footer') %>

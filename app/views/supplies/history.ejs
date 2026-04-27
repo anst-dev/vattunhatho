@@ -1,0 +1,155 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h1>Lịch sử: <%= categoryName %></h1>
+  <div class="page-actions">
+    <a href="/supplies/entry/<%= category %>" class="btn btn-primary">
+      <span class="material-symbols-outlined">add</span> Nhập mới
+    </a>
+  </div>
+</div>
+
+<div class="total-bar">
+  <span>Tổng cộng: <strong><%= Number(totalAmount).toLocaleString('vi-VN') %> đ</strong></span>
+  <span><%= supplies.length %> phiếu</span>
+</div>
+
+<div class="table-wrapper">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>STT</th>
+        <th>Ngày</th>
+        <th>Tên vật tư</th>
+        <th>Đơn vị</th>
+        <th class="text-right">SL</th>
+        <th class="text-right">Đơn giá</th>
+        <th class="text-right">Thành tiền</th>
+        <th>Ghi chú</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% supplies.forEach((s, i) => { %>
+      <tr>
+        <td><%= i + 1 %></td>
+        <td><%= s.date.includes('-') ? s.date.split('-').reverse().join('/') : s.date %></td>
+        <td><strong><%= s.material_name %></strong></td>
+        <td><%= s.unit %></td>
+        <td class="text-right"><%= s.quantity %></td>
+        <td class="text-right"><%= Number(s.unit_price).toLocaleString('vi-VN') %> đ</td>
+        <td class="text-right"><strong><%= Number(s.total_amount).toLocaleString('vi-VN') %> đ</strong></td>
+        <td class="note-cell"><%= s.note || '' %></td>
+        <td class="actions-cell">
+          <button class="btn-icon" onclick="openEditModal(
+            '<%= s.id %>',
+            '<%= s.date %>',
+            '<%= s.material_name.replace(/'/g, "\\'") %>',
+            '<%= s.unit.replace(/'/g, "\\'") %>',
+            '<%= s.quantity %>',
+            '<%= s.unit_price %>',
+            '<%= (s.note || '').replace(/'/g, "\\'").replace(/\n/g, " ") %>',
+            '<%= category %>'
+          )" title="Sửa">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+          <form method="POST" action="/supplies/<%= s.id %>/delete?category=<%= category %>" style="display:inline" onsubmit="return confirm('Xóa phiếu này?')">
+            <button type="submit" class="btn-icon btn-danger-icon" title="Xóa">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+      <% if (supplies.length === 0) { %>
+      <tr><td colspan="9" class="text-center">Chưa có dữ liệu</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Sửa phiếu nhập</h2>
+      <button class="btn-icon" onclick="closeEditModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <form id="editForm" method="POST" action="">
+      <input type="hidden" name="category" id="edit_category">
+
+      <div class="form-group">
+        <label>Ngày <span class="required">*</span></label>
+        <input type="date" name="date" id="edit_date" required>
+      </div>
+
+      <div class="form-group">
+        <label>Tên vật tư <span class="required">*</span></label>
+        <input type="text" name="material_name" id="edit_material_name" required>
+      </div>
+
+      <div class="form-group">
+        <label>Đơn vị</label>
+        <input type="text" name="unit" id="edit_unit" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Số lượng <span class="required">*</span></label>
+          <input type="number" name="quantity" id="edit_quantity" min="1" step="any" required oninput="calcEditTotal()">
+        </div>
+        <div class="form-group">
+          <label>Đơn giá <span class="required">*</span></label>
+          <input type="number" name="unit_price" id="edit_unit_price" min="0" step="any" required oninput="calcEditTotal()">
+        </div>
+      </div>
+
+      <div class="form-group total-display">
+        <label>Thành tiền</label>
+        <div class="total-value" id="edit_total_display">0 đ</div>
+      </div>
+
+      <div class="form-group">
+        <label>Ghi chú</label>
+        <input type="text" name="note" id="edit_note">
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" onclick="closeEditModal()">Hủy</button>
+        <button type="submit" class="btn btn-primary">
+          <span class="material-symbols-outlined">save</span> Cập nhật
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openEditModal(id, date, name, unit, qty, price, note, category) {
+  document.getElementById('editForm').action = '/supplies/' + id + '/update';
+  document.getElementById('edit_date').value = date;
+  document.getElementById('edit_material_name').value = name;
+  document.getElementById('edit_unit').value = unit;
+  document.getElementById('edit_quantity').value = qty;
+  document.getElementById('edit_unit_price').value = price;
+  document.getElementById('edit_note').value = note;
+  document.getElementById('edit_category').value = category;
+  calcEditTotal();
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').style.display = 'none';
+}
+
+function calcEditTotal() {
+  const qty = parseFloat(document.getElementById('edit_quantity').value) || 0;
+  const price = parseFloat(document.getElementById('edit_unit_price').value) || 0;
+  const total = qty * price;
+  document.getElementById('edit_total_display').textContent = total.toLocaleString('vi-VN') + ' đ';
+}
+</script>
+
+<%- include('../partials/footer') %>

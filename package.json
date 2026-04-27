@@ -1,0 +1,17 @@
+{
+  "name": "vattunhatho",
+  "version": "1.0.0",
+  "description": "Quản lý vật tư xây dựng nhà thờ - Cung cấp vật tư và báo cáo",
+  "main": "app/server.js",
+  "scripts": {
+    "start": "node app/server.js",
+    "dev": "node --watch app/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "googleapis": "^171.4.0",
+    "morgan": "^1.10.0"
+  }
+}

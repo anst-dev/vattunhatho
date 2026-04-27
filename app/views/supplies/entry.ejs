@@ -1,0 +1,170 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h1>Nhập vật tư: <%= categoryName %></h1>
+  <a href="/supplies/history/<%= category %>" class="btn btn-outline">
+    <span class="material-symbols-outlined">history</span> Lịch sử
+  </a>
+</div>
+
+<!-- Quick Entry Form -->
+<div class="entry-card">
+  <form method="POST" action="/supplies/create" id="entryForm">
+    <input type="hidden" name="category" value="<%= category %>">
+
+    <div class="entry-grid">
+      <div class="form-group">
+        <label>Ngày <span class="required">*</span></label>
+        <input type="date" name="date" id="entry_date" required value="<%= new Date().toISOString().split('T')[0] %>">
+      </div>
+
+      <div class="form-group">
+        <label>Vật tư <span class="required">*</span></label>
+        <select name="material_id" id="material_select" onchange="onMaterialSelect()" required>
+          <option value="">-- Chọn vật tư --</option>
+          <% materials.forEach(m => { %>
+          <option value="<%= m.id %>"
+                  data-name="<%= m.name %>"
+                  data-unit="<%= m.unit %>"
+                  data-price="<%= m.default_price %>">
+            <%= m.name %> (<%= m.unit %>)
+          </option>
+          <% }) %>
+          <option value="custom">+ Nhập tay...</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="custom_name_group" style="display:none">
+        <label>Tên vật tư <span class="required">*</span></label>
+        <input type="text" name="material_name" id="custom_name" placeholder="Nhập tên vật tư">
+      </div>
+
+      <div class="form-group">
+        <label>Đơn vị</label>
+        <input type="text" name="unit" id="entry_unit" readonly>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Số lượng <span class="required">*</span></label>
+          <input type="number" name="quantity" id="entry_quantity" min="1" step="any" required
+                 oninput="calcTotal()" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Đơn giá <span class="required">*</span></label>
+          <input type="number" name="unit_price" id="entry_price" min="0" step="any" required
+                 oninput="calcTotal()" placeholder="0">
+        </div>
+      </div>
+
+      <div class="form-group total-display">
+        <label>Thành tiền</label>
+        <div class="total-value" id="total_display">0 đ</div>
+      </div>
+
+      <div class="form-group">
+        <label>Ghi chú</label>
+        <input type="text" name="note" id="entry_note" placeholder="Ghi chú (nếu có)">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="reset" class="btn btn-outline" onclick="resetForm()">
+        <span class="material-symbols-outlined">restart_alt</span> Reset
+      </button>
+      <button type="submit" class="btn btn-primary btn-lg">
+        <span class="material-symbols-outlined">save</span> Lưu
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Quick Add Material -->
+<details class="quick-add-material">
+  <summary><span class="material-symbols-outlined">add_circle</span> Thêm vật tư mới nhanh</summary>
+  <form method="POST" action="/materials/create" class="quick-add-form">
+    <input type="hidden" name="category" value="<%= category %>">
+    <input type="text" name="name" required placeholder="Tên vật tư">
+    <input type="text" name="unit" required placeholder="Đơn vị">
+    <input type="number" name="default_price" min="0" value="0" placeholder="Đơn giá">
+    <button type="submit" class="btn btn-sm btn-primary">Thêm</button>
+  </form>
+</details>
+
+<script>
+const materialsData = <%- JSON.stringify(materials) %>;
+
+function onMaterialSelect() {
+  const sel = document.getElementById('material_select');
+  const opt = sel.options[sel.selectedIndex];
+  const customGroup = document.getElementById('custom_name_group');
+  const nameInput = document.getElementById('custom_name');
+  const hiddenNameInput = document.querySelector('input[name="material_name"]');
+
+  if (sel.value === 'custom') {
+    customGroup.style.display = 'block';
+    document.getElementById('entry_unit').value = '';
+    document.getElementById('entry_unit').readOnly = false;
+    document.getElementById('entry_price').value = '';
+    nameInput.focus();
+  } else if (sel.value) {
+    customGroup.style.display = 'none';
+    document.getElementById('entry_unit').value = opt.dataset.unit;
+    document.getElementById('entry_unit').readOnly = true;
+    document.getElementById('entry_price').value = opt.dataset.price;
+
+    // Set hidden material_name from select option data
+    const hiddenInput = document.getElementById('hidden_material_name');
+    if (hiddenInput) hiddenInput.value = opt.dataset.name;
+
+    calcTotal();
+  } else {
+    customGroup.style.display = 'none';
+    document.getElementById('entry_unit').value = '';
+    document.getElementById('entry_price').value = '';
+  }
+}
+
+function calcTotal() {
+  const qty = parseFloat(document.getElementById('entry_quantity').value) || 0;
+  const price = parseFloat(document.getElementById('entry_price').value) || 0;
+  const total = qty * price;
+  document.getElementById('total_display').textContent = total.toLocaleString('vi-VN') + ' đ';
+}
+
+function resetForm() {
+  document.getElementById('total_display').textContent = '0 đ';
+  document.getElementById('custom_name_group').style.display = 'none';
+}
+
+// Intercept form submit to set material_name properly
+document.getElementById('entryForm').addEventListener('submit', function(e) {
+  const sel = document.getElementById('material_select');
+  const opt = sel.options[sel.selectedIndex];
+
+  if (sel.value === 'custom') {
+    // Use custom name
+    const customName = document.getElementById('custom_name').value;
+    if (!customName) {
+      e.preventDefault();
+      alert('Vui lòng nhập tên vật tư!');
+      return;
+    }
+    // Move value to material_name
+    const existing = this.querySelector('input[name="material_name"]');
+    if (existing) existing.value = customName;
+  } else if (sel.value) {
+    // Use selected material name - need to create/ensure material_name field
+    let nameInput = this.querySelector('input[name="material_name"]');
+    if (!nameInput) {
+      nameInput = document.createElement('input');
+      nameInput.type = 'hidden';
+      nameInput.name = 'material_name';
+      this.appendChild(nameInput);
+    }
+    nameInput.value = opt.dataset.name;
+  }
+});
+</script>
+
+<%- include('../partials/footer') %>

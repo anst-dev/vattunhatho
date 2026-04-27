@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'Vật Tư Nhà Thờ' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Top App Bar (Desktop) -->
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <a href="/" class="brand">
+        <span class="material-symbols-outlined">construction</span>
+        <span>Vật Tư Nhà Thờ</span>
+      </a>
+      <nav class="nav-desktop">
+        <a href="/" class="<%= title?.includes('Trang chủ') ? 'active' : '' %>">
+          <span class="material-symbols-outlined">dashboard</span> Tổng quan
+        </a>
+        <a href="/supplies/entry/xi_mang_sat_thep" class="<%= title?.includes('Xi măng') ? 'active' : '' %>">
+          <span class="material-symbols-outlined">add_box</span> Nhập VT
+        </a>
+        <a href="/supplies/entry/da_cat" class="<%= title?.includes('Đá cát') ? 'active' : '' %>">
+          <span class="material-symbols-outlined">add_box</span> Nhập ĐC
+        </a>
+        <a href="/materials" class="<%= title?.includes('vật tư') && !title?.includes('Nhập') && !title?.includes('Lịch sử') ? 'active' : '' %>">
+          <span class="material-symbols-outlined">inventory_2</span> Vật tư
+        </a>
+        <a href="/report" class="<%= title?.includes('Báo cáo') ? 'active' : '' %>">
+          <span class="material-symbols-outlined">description</span> Báo cáo
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Messages -->
+  <div class="messages">
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="msg msg-success">
+        <span class="material-symbols-outlined">check_circle</span>
+        <%= success === 'created' ? 'Đã thêm thành công!' : success === 'updated' ? 'Đã cập nhật!' : success === 'deleted' ? 'Đã xóa!' : success %>
+      </div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="msg msg-error">
+        <span class="material-symbols-outlined">error</span>
+        <%= error === 'missing_fields' ? 'Vui lòng điền đầy đủ thông tin!' : error %>
+      </div>
+    <% } %>
+  </div>
+
+  <main class="main-content">
