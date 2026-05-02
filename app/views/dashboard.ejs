@@ -79,6 +79,125 @@
   <a href="/report" class="btn btn-outline btn-lg">
     <span class="material-symbols-outlined">description</span> Báo cáo tổng hợp
   </a>
+  <button type="button" class="btn btn-reset btn-lg" onclick="openResetModal()">
+    <span class="material-symbols-outlined">delete_forever</span> Reset dữ liệu
+  </button>
 </div>
+
+<!-- Modal xác nhận Reset -->
+<div class="modal" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle">
+  <div class="modal-content" style="max-width:480px">
+    <div class="modal-header">
+      <h2 id="resetModalTitle">
+        <span class="material-symbols-outlined" style="color:var(--color-error);vertical-align:middle;margin-right:6px">warning</span>
+        Xác nhận Reset dữ liệu
+      </h2>
+      <button class="btn-icon" onclick="closeResetModal()" aria-label="Đóng">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <p style="margin-bottom:12px;font-weight:600;color:var(--color-error)">
+        Thao tác này sẽ xóa toàn bộ <%= data.totalSupplies || 0 %> phiếu nhập!
+      </p>
+      <p style="margin-bottom:8px">Trước khi xóa, hệ thống sẽ:</p>
+      <ol style="padding-left:20px;line-height:1.8">
+        <li>Tự động tải file Excel backup về máy bạn</li>
+        <li>Sau đó xóa toàn bộ phiếu nhập</li>
+      </ol>
+      <p style="margin-top:12px;font-size:0.9rem;color:var(--color-on-surface-variant)">
+        Danh mục vật tư <strong>không bị ảnh hưởng</strong>.
+      </p>
+    </div>
+
+    <div id="resetStatus" style="display:none;margin-bottom:16px;padding:12px;border-radius:8px;background:var(--color-surface-container)">
+      <span class="material-symbols-outlined" style="vertical-align:middle;animation:spin 1s linear infinite">sync</span>
+      <span id="resetStatusText" style="margin-left:6px">Đang tạo file backup...</span>
+    </div>
+
+    <div class="form-actions" style="gap:10px;display:flex;justify-content:flex-end">
+      <button type="button" class="btn btn-outline" onclick="closeResetModal()" id="btnCancelReset">Huỷ</button>
+      <button type="button" class="btn btn-reset" onclick="doReset()" id="btnConfirmReset">
+        <span class="material-symbols-outlined">delete_forever</span> Xác nhận Reset
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.btn-reset {
+  background: var(--color-error, #b3261e);
+  color: #fff;
+  border: none;
+}
+.btn-reset:hover { background: #8c1a14; }
+</style>
+
+<script>
+function openResetModal() {
+  document.getElementById('resetModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeResetModal() {
+  document.getElementById('resetModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+async function doReset() {
+  const btnConfirm = document.getElementById('btnConfirmReset');
+  const btnCancel = document.getElementById('btnCancelReset');
+  const statusBox = document.getElementById('resetStatus');
+  const statusText = document.getElementById('resetStatusText');
+
+  // Disable nút, hiện trạng thái
+  btnConfirm.disabled = true;
+  btnCancel.disabled = true;
+  statusBox.style.display = 'block';
+  statusText.textContent = 'Đang tạo file Excel backup...';
+
+  try {
+    // Bước 1: Tải Excel backup
+    const response = await fetch('/reset/backup-excel');
+    if (!response.ok) throw new Error('Lỗi khi tạo file backup');
+
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get('Content-Disposition') || '';
+    let fileName = 'backup_vattu.xlsx';
+    const match = contentDisposition.match(/filename\*=UTF-8''(.+)/i);
+    if (match) fileName = decodeURIComponent(match[1]);
+
+    // Trigger download
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+    a.remove();
+
+    statusText.textContent = 'File backup đã tải về. Đang xóa dữ liệu...';
+
+    // Bước 2: Submit form POST /reset/confirm
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/reset/confirm';
+    document.body.appendChild(form);
+    form.submit();
+
+  } catch (err) {
+    statusText.textContent = 'Lỗi: ' + err.message;
+    btnConfirm.disabled = false;
+    btnCancel.disabled = false;
+  }
+}
+
+// Đóng modal khi click bên ngoài
+document.getElementById('resetModal').addEventListener('click', function(e) {
+  if (e.target === this) closeResetModal();
+});
+</script>
 
 <%- include('partials/footer') %>
