@@ -22,5 +22,6 @@ router.get('/', async (req, res) => {
 
 router.get('/report', require('../controllers/reportController').showReport);
 router.get('/report/print', require('../controllers/reportController').printReport);
+router.get('/report/export', require('../controllers/reportController').exportExcel);
 
 module.exports = router;

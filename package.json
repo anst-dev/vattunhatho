@@ -5,13 +5,20 @@
   "main": "app/server.js",
   "scripts": {
     "start": "node app/server.js",
-    "dev": "node --watch app/server.js"
+    "dev": "nodemon app/server.js",
+    "test": "playwright test",
+    "test:ui": "playwright test --reporter=list"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "googleapis": "^171.4.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "nodemon": "^3.1.14"
   }
 }

@@ -6,8 +6,8 @@
 
 <!-- Filter Form -->
 <div class="filter-card">
-  <form method="GET" action="/report" class="filter-form">
-    <div class="form-row">
+  <form method="GET" action="/report" class="filter-form" id="reportForm">
+    <div class="filter-date-row">
       <div class="form-group">
         <label>Từ ngày</label>
         <input type="date" name="from_date" value="<%= fromDate %>">
@@ -24,13 +24,30 @@
           <option value="da_cat" <%= category === 'da_cat' ? 'selected' : '' %>>Đá cát</option>
         </select>
       </div>
-      <div class="form-group filter-actions">
-        <button type="submit" class="btn btn-primary">
-          <span class="material-symbols-outlined">filter_alt</span> Lọc
-        </button>
-        <a href="/report/print?from_date=<%= fromDate %>&to_date=<%= toDate %>&category=<%= category %>"
+    </div>
+    <div class="filter-actions" style="margin-top:8px">
+      <button type="submit" class="btn btn-primary">
+        <span class="material-symbols-outlined">filter_alt</span> Lọc
+      </button>
+    </div>
+
+    <!-- Tên khách hàng -->
+    <div class="form-row" style="margin-top:10px">
+      <div class="form-group" style="flex:1">
+        <label>Tên khách hàng / Tiêu đề báo cáo</label>
+        <input type="text" id="customerNameInput" placeholder="VD: Nhà thờ Chính Tòa Hà Nội"
+               style="width:100%" oninput="saveCustomerName(this.value)">
+      </div>
+      <div class="form-group filter-actions" style="align-self:flex-end">
+        <a id="printBtn"
+           href="/report/print?from_date=<%= fromDate %>&to_date=<%= toDate %>&category=<%= category %>"
            class="btn btn-outline" target="_blank">
           <span class="material-symbols-outlined">print</span> In / PDF
+        </a>
+        <a id="exportBtn"
+           href="/report/export?from_date=<%= fromDate %>&to_date=<%= toDate %>&category=<%= category %>"
+           class="btn btn-outline">
+          <span class="material-symbols-outlined">table_view</span> Xuất Excel
         </a>
       </div>
     </div>
@@ -43,7 +60,7 @@
   <h2 class="report-title">
     LỊCH SỬ CUNG CẤP VẬT TƯ
     <span class="report-cat"><%= categoryNames[report.category] %></span>
-    NHÀ THỜ
+    <span class="report-customer-inline"></span>
   </h2>
   <p class="report-subtitle">
     Từ ngày <%= formatDate(fromDate) %> đến ngày <%= formatDate(toDate) %>
@@ -93,5 +110,44 @@
   </div>
 </div>
 <% }) %>
+
+<script>
+const FROM_DATE = '<%= fromDate %>';
+const TO_DATE = '<%= toDate %>';
+const CATEGORY = '<%= category %>';
+
+function saveCustomerName(val) {
+  localStorage.setItem('vattu_customer_name', val);
+  updateLinks(val);
+  updateInlineTitles(val);
+}
+
+function updateLinks(name) {
+  const enc = encodeURIComponent(name);
+  const printBtn = document.getElementById('printBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  if (printBtn) {
+    printBtn.href = `/report/print?from_date=${FROM_DATE}&to_date=${TO_DATE}&category=${CATEGORY}&customer_name=${enc}`;
+  }
+  if (exportBtn) {
+    exportBtn.href = `/report/export?from_date=${FROM_DATE}&to_date=${TO_DATE}&category=${CATEGORY}&customer_name=${enc}`;
+  }
+}
+
+function updateInlineTitles(name) {
+  document.querySelectorAll('.report-customer-inline').forEach(el => {
+    el.textContent = name ? name : 'NHÀ THỜ';
+  });
+}
+
+// Khôi phục tên từ localStorage khi tải trang
+document.addEventListener('DOMContentLoaded', function() {
+  const saved = localStorage.getItem('vattu_customer_name') || '';
+  const input = document.getElementById('customerNameInput');
+  if (input) input.value = saved;
+  updateLinks(saved);
+  updateInlineTitles(saved);
+});
+</script>
 
 <%- include('../partials/footer') %>

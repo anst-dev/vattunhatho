@@ -53,6 +53,13 @@
       color: #333;
     }
 
+    .customer-name-print {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #222;
+      margin-top: 2mm;
+    }
+
     .report-date-range {
       text-align: center;
       font-size: 11pt;
@@ -114,31 +121,6 @@
       font-size: 10.5pt;
     }
 
-    .footer-signature {
-      margin-top: 12mm;
-      display: flex;
-      justify-content: space-between;
-      page-break-inside: avoid;
-    }
-
-    .signature-block {
-      text-align: center;
-      width: 40%;
-    }
-
-    .signature-block .sig-title {
-      font-weight: 600;
-      font-size: 11pt;
-      margin-bottom: 15mm;
-    }
-
-    .signature-block .sig-name {
-      font-weight: 700;
-      font-size: 11pt;
-      border-top: 1px dashed #666;
-      padding-top: 2mm;
-    }
-
     .no-print {
       display: none;
     }
@@ -166,6 +148,11 @@
         position: sticky;
         top: 0;
         z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
       }
       .print-bar button {
         background: #4CAF50;
@@ -175,16 +162,39 @@
         font-size: 14px;
         border-radius: 4px;
         cursor: pointer;
-        margin: 0 8px;
       }
       .print-bar button:hover { background: #45a049; }
+      .print-bar button.btn-close { background: #888; }
+      .print-bar button.btn-close:hover { background: #666; }
+      .title-input-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .title-input-wrap label {
+        font-size: 13px;
+        white-space: nowrap;
+      }
+      .title-input-wrap input {
+        padding: 6px 10px;
+        font-size: 13px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        min-width: 260px;
+      }
     }
+
   </style>
 </head>
 <body>
+  <!-- Thanh điều khiển (chỉ hiện trên màn hình) -->
   <div class="no-print print-bar">
+    <div class="title-input-wrap">
+      <label>Tên khách hàng:</label>
+      <input type="text" id="titleInput" placeholder="Nhập tên khách hàng..." oninput="onTitleChange(this.value)">
+    </div>
     <button onclick="window.print()">🖨️ In / Lưu PDF</button>
-    <button onclick="window.close()">Đóng</button>
+    <button class="btn-close" onclick="window.close()">Đóng</button>
   </div>
 
   <% reports.forEach((report, rIdx) => { %>
@@ -192,7 +202,7 @@
     <!-- Header -->
     <div class="report-header">
       <h1>LỊCH SỬ CUNG CẤP VẬT TƯ</h1>
-      <div class="report-category"><%= categoryNames[report.category] %> NHÀ THỜ</div>
+      <div class="report-category" id="catLine_<%= rIdx %>"><%= categoryNames[report.category] %> NHÀ THỜ</div>
     </div>
 
     <div class="report-date-range">
@@ -235,19 +245,35 @@
         </tr>
       </tfoot>
     </table>
-
-    <!-- Signature -->
-    <div class="footer-signature">
-      <div class="signature-block">
-        <div class="sig-title">Người cung cấp</div>
-        <div class="sig-name">(Ký, ghi rõ họ tên)</div>
-      </div>
-      <div class="signature-block">
-        <div class="sig-title">Người nhận</div>
-        <div class="sig-name">(Ký, ghi rõ họ tên)</div>
-      </div>
-    </div>
   </div>
   <% }) %>
+
+<script>
+  // catNames[i] = tên nhóm vật tư của report thứ i
+  const CAT_NAMES = <%- JSON.stringify(reports.map(r => categoryNames[r.category] || r.category)) %>;
+
+  // Lấy customer_name từ query string (nếu server truyền vào)
+  const QUERY_CUSTOMER = <%- JSON.stringify(customerName || '') %>;
+
+  function onTitleChange(val) {
+    localStorage.setItem('vattu_customer_name', val);
+    applyCatLines(val);
+  }
+
+  function applyCatLines(name) {
+    CAT_NAMES.forEach((catName, i) => {
+      const el = document.getElementById('catLine_' + i);
+      if (el) el.textContent = catName + ' ' + (name || 'NHÀ THỜ');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('titleInput');
+    // Ưu tiên: query string -> localStorage
+    const saved = QUERY_CUSTOMER || localStorage.getItem('vattu_customer_name') || '';
+    if (input) input.value = saved;
+    applyCatLines(saved);
+  });
+</script>
 </body>
 </html>

@@ -330,6 +330,14 @@ a:hover { text-decoration: underline; }
   flex-wrap: wrap;
 }
 
+/* === Filter Date Row (3 cột: from, to, category) === */
+.filter-date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
 .chip {
   padding: 6px 16px;
   border-radius: var(--radius-full);
@@ -694,30 +702,259 @@ a:hover { text-decoration: underline; }
 
 .bottom-nav .material-symbols-outlined { font-size: 22px; }
 
-/* === Responsive === */
+/* === Responsive Mobile === */
 @media (max-width: 768px) {
+  /* Nav */
   .nav-desktop { display: none; }
   .bottom-nav { display: flex; }
-  body { padding-bottom: 80px; }
+  body { padding-bottom: 72px; }
 
-  .main-content { padding: 12px; }
+  /* Layout */
+  .main-content { padding: 10px; }
+  .messages { padding: 6px 10px 0; }
 
-  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .stat-card { padding: 14px; }
-  .stat-value { font-size: 0.95rem; }
+  /* Page header */
+  .page-header { margin-bottom: 12px; }
+  .page-header h1 { font-size: 1.15rem; }
 
-  .section-grid { grid-template-columns: 1fr; }
+  /* Stats: 2 cột compact */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .stat-card { padding: 12px 14px; gap: 10px; border-radius: var(--radius-lg); }
+  .stat-icon { width: 38px; height: 38px; border-radius: var(--radius-md); }
+  .stat-icon .material-symbols-outlined { font-size: 20px; }
+  .stat-value { font-size: 0.9rem; }
+  .stat-label { font-size: 0.72rem; }
 
-  .entry-grid { grid-template-columns: 1fr; }
+  /* Section grid: 1 cột */
+  .section-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
+
+  /* Form: 1 cột hoàn toàn */
+  .entry-grid { grid-template-columns: 1fr; gap: 0; }
+  .entry-grid .form-row { grid-template-columns: 1fr 1fr; }
+  .form-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Filter card */
+  .filter-card { padding: 12px; border-radius: var(--radius-lg); margin-bottom: 12px; }
+  .filter-date-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .filter-date-row .form-group:last-child {
+    grid-column: 1 / -1;
+  }
+  .filter-form .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .filter-actions { flex-wrap: wrap; gap: 6px; }
+  .filter-actions .btn { flex: 1; justify-content: center; font-size: 0.82rem; padding: 9px 10px; }
+
+  /* Entry card */
+  .entry-card { padding: 14px; border-radius: var(--radius-lg); }
+  .form-group { margin-bottom: 10px; }
+  .form-group input, .form-group select { padding: 11px 12px; font-size: 16px; /* ngăn zoom trên iOS */ }
+  .form-group label { font-size: 0.78rem; }
+
+  /* Total display */
+  .total-value { font-size: 1.15rem; }
+
+  /* Form actions: nút full width */
+  .form-actions { flex-direction: row; gap: 8px; }
+  .form-actions .btn { flex: 1; justify-content: center; }
+
+  /* Quick add */
+  .quick-add-material { border-radius: var(--radius-lg); margin-top: 10px; }
+  .quick-add-form { flex-direction: column; gap: 8px; padding: 0 14px 14px; }
+  .quick-add-form input { min-width: unset; width: 100%; }
+
+  /* Total bar */
+  .total-bar { padding: 10px 14px; font-size: 0.85rem; border-radius: var(--radius-lg); }
+
+  /* Table: scroll ngang, font nhỏ hơn */
+  .table-wrapper { border-radius: var(--radius-lg); overflow-x: auto; overflow-y: visible; }
+  .data-table th { padding: 9px 7px; font-size: 0.72rem; }
+  .data-table td { padding: 9px 7px; font-size: 0.82rem; }
+  .note-cell { max-width: 90px; }
+  .actions-cell { white-space: nowrap; }
+
+  /* Modal: full bottom sheet feel */
+  .modal { align-items: flex-end; padding: 0; }
+  .modal-content {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-width: 100%;
+    max-height: 92vh;
+    padding: 20px 16px 32px;
+  }
+  .modal-content .form-row { grid-template-columns: 1fr 1fr; }
+
+  /* Report section */
+  .report-section { padding: 14px; border-radius: var(--radius-lg); }
+
+  /* Buttons bottom nav */
+  .bottom-nav { padding: 4px 0 6px; }
+  .bottom-nav a { font-size: 0.62rem; padding: 3px 6px; }
+  .bottom-nav .material-symbols-outlined { font-size: 24px; }
+}
+
+/* Điện thoại nhỏ < 400px: 1 cột hoàn toàn */
+@media (max-width: 400px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .filter-form .form-row { grid-template-columns: 1fr; }
+  .entry-grid .form-row { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
-
-  .filter-form .form-row { flex-direction: column; }
-
-  .page-header h1 { font-size: 1.2rem; }
-
-  .data-table th, .data-table td { padding: 8px 6px; font-size: 0.8rem; }
+  .modal-content .form-row { grid-template-columns: 1fr; }
 }
 
 @media (min-width: 769px) {
   .bottom-nav { display: none; }
+}
+
+/* === Mobile Card List === */
+/* Mặc định: card ẩn, bảng hiện */
+.mobile-card-list { display: none; }
+.desktop-table { display: block; }
+
+@media (max-width: 768px) {
+  /* Ẩn bảng, hiện card */
+  .desktop-table { display: none; }
+  .mobile-card-list { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Card item */
+  .supply-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 14px 16px;
+    border-left: 4px solid var(--color-primary);
+  }
+
+  .supply-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .supply-card-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--color-on-surface);
+    flex: 1;
+    margin-right: 8px;
+  }
+
+  .supply-card-total {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--color-primary);
+    white-space: nowrap;
+  }
+
+  .supply-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 0.8rem;
+    color: var(--color-on-surface-variant);
+    margin-bottom: 10px;
+  }
+
+  .supply-card-meta span {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .supply-card-meta .material-symbols-outlined {
+    font-size: 14px;
+  }
+
+  .supply-card-note {
+    font-size: 0.8rem;
+    color: var(--color-on-surface-variant);
+    font-style: italic;
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    background: var(--color-surface-dim);
+    border-radius: var(--radius-sm);
+  }
+
+  .supply-card-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-surface-container);
+    padding-top: 10px;
+  }
+
+  .supply-card-actions .btn {
+    padding: 7px 16px;
+    font-size: 0.82rem;
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Material card */
+  .material-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .material-card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 20px;
+  }
+
+  .material-card-icon.blue { background: #e3f2fd; color: #1565c0; }
+  .material-card-icon.green { background: #e8f5e9; color: #2e7d32; }
+
+  .material-card-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .material-card-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .material-card-sub {
+    font-size: 0.78rem;
+    color: var(--color-on-surface-variant);
+    margin-top: 2px;
+  }
+
+  .material-card-price {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--color-primary);
+    margin-top: 2px;
+  }
+
+  .material-card-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
 }

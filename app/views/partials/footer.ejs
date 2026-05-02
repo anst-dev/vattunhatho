@@ -2,23 +2,23 @@
 
   <!-- Bottom Nav (Mobile) -->
   <nav class="bottom-nav">
-    <a href="/" class="<%= typeof title !== 'undefined' && title?.includes('Trang chủ') ? 'active' : '' %>">
+    <a href="/" class="<%= typeof title !== 'undefined' && title?.startsWith('Trang chủ') ? 'active' : '' %>">
       <span class="material-symbols-outlined">dashboard</span>
       <span>Tổng quan</span>
     </a>
-    <a href="/supplies/entry/xi_mang_sat_thep">
+    <a href="/supplies/entry/xi_mang_sat_thep" class="<%= typeof title !== 'undefined' && title?.includes('Xi măng') ? 'active' : '' %>">
       <span class="material-symbols-outlined">add_circle</span>
       <span>Nhập VT</span>
     </a>
-    <a href="/supplies/entry/da_cat">
+    <a href="/supplies/entry/da_cat" class="<%= typeof title !== 'undefined' && title?.includes('Đá cát') ? 'active' : '' %>">
       <span class="material-symbols-outlined">add_circle</span>
       <span>Nhập ĐC</span>
     </a>
-    <a href="/materials" class="<%= typeof title !== 'undefined' && title?.includes('vật tư') ? 'active' : '' %>">
+    <a href="/materials" class="<%= typeof title !== 'undefined' && title === 'Danh sách vật tư' ? 'active' : '' %>">
       <span class="material-symbols-outlined">inventory_2</span>
       <span>Vật tư</span>
     </a>
-    <a href="/report" class="<%= typeof title !== 'undefined' && title?.includes('Báo cáo') ? 'active' : '' %>">
+    <a href="/report" class="<%= typeof title !== 'undefined' && title?.startsWith('Báo cáo') ? 'active' : '' %>">
       <span class="material-symbols-outlined">description</span>
       <span>Báo cáo</span>
     </a>

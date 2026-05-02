@@ -4,6 +4,11 @@ const sheetsDb = require('./sheetsDbService');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 
+// Đảm bảo thư mục data tồn tại
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
 const NESTED_FIELDS = {};
 
 function read(fileName) {

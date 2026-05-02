@@ -7,3 +7,5 @@ app/data/*.json
 !package-lock.json
 test.html
 *.tmp
+test-results/
+tests/playwright-report/

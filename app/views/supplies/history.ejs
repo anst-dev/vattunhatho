@@ -14,7 +14,8 @@
   <span><%= supplies.length %> phiếu</span>
 </div>
 
-<div class="table-wrapper">
+<!-- Desktop: bảng thường -->
+<div class="desktop-table table-wrapper">
   <table class="data-table">
     <thead>
       <tr>
@@ -66,6 +67,57 @@
       <% } %>
     </tbody>
   </table>
+</div>
+
+<!-- Mobile: card list -->
+<div class="mobile-card-list">
+  <% if (supplies.length === 0) { %>
+  <p style="text-align:center;color:var(--color-on-surface-variant);padding:20px 0">Chưa có dữ liệu</p>
+  <% } %>
+  <% supplies.forEach((s, i) => { %>
+  <div class="supply-card">
+    <div class="supply-card-top">
+      <div class="supply-card-name"><%= s.material_name %></div>
+      <div class="supply-card-total"><%= Number(s.total_amount).toLocaleString('vi-VN') %> đ</div>
+    </div>
+    <div class="supply-card-meta">
+      <span>
+        <span class="material-symbols-outlined">calendar_today</span>
+        <%= s.date.includes('-') ? s.date.split('-').reverse().join('/') : s.date %>
+      </span>
+      <span>
+        <span class="material-symbols-outlined">straighten</span>
+        <%= s.quantity %> <%= s.unit %>
+      </span>
+      <span>
+        <span class="material-symbols-outlined">payments</span>
+        <%= Number(s.unit_price).toLocaleString('vi-VN') %> đ/<%= s.unit %>
+      </span>
+    </div>
+    <% if (s.note) { %>
+    <div class="supply-card-note"><%= s.note %></div>
+    <% } %>
+    <div class="supply-card-actions">
+      <button class="btn btn-outline" onclick="openEditModal(
+        '<%= s.id %>',
+        '<%= s.date %>',
+        '<%= s.material_name.replace(/'/g, "\\'") %>',
+        '<%= s.unit.replace(/'/g, "\\'") %>',
+        '<%= s.quantity %>',
+        '<%= s.unit_price %>',
+        '<%= (s.note || '').replace(/'/g, "\\'").replace(/\n/g, " ") %>',
+        '<%= category %>'
+      )">
+        <span class="material-symbols-outlined">edit</span> Sửa
+      </button>
+      <form method="POST" action="/supplies/<%= s.id %>/delete?category=<%= category %>" style="display:contents" onsubmit="return confirm('Xóa phiếu này?')">
+        <button type="submit" class="btn btn-outline" style="color:var(--color-error);border-color:var(--color-error)">
+          <span class="material-symbols-outlined">delete</span> Xóa
+        </button>
+      </form>
+    </div>
+  </div>
+  <% }) %>
 </div>
 
 <!-- Edit Modal -->

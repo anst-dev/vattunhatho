@@ -16,7 +16,8 @@
   <a href="/materials?category=da_cat" class="chip <%= currentCategory === 'da_cat' ? 'active' : '' %>">Đá cát</a>
 </div>
 
-<div class="table-wrapper">
+<!-- Desktop: bảng thường -->
+<div class="desktop-table table-wrapper">
   <table class="data-table">
     <thead>
       <tr>
@@ -53,6 +54,35 @@
       <% } %>
     </tbody>
   </table>
+</div>
+
+<!-- Mobile: card list -->
+<div class="mobile-card-list">
+  <% if (materials.length === 0) { %>
+  <p style="text-align:center;color:var(--color-on-surface-variant);padding:20px 0">Chưa có vật tư nào</p>
+  <% } %>
+  <% materials.forEach(m => { %>
+  <div class="material-card">
+    <div class="material-card-icon <%= m.category === 'xi_mang_sat_thep' ? 'blue' : 'green' %>">
+      <span class="material-symbols-outlined">inventory_2</span>
+    </div>
+    <div class="material-card-body">
+      <div class="material-card-name"><%= m.name %></div>
+      <div class="material-card-sub"><%= categories[m.category] || m.category %> &bull; <%= m.unit %> &bull; <span style="font-family:monospace"><%= m.id %></span></div>
+      <div class="material-card-price"><%= Number(m.default_price).toLocaleString('vi-VN') %> đ</div>
+    </div>
+    <div class="material-card-actions">
+      <button class="btn-icon" onclick="editMaterial('<%= m.id %>', '<%= m.name.replace(/'/g, "\\'") %>', '<%= m.unit %>', '<%= m.default_price %>', '<%= m.category %>')" title="Sửa">
+        <span class="material-symbols-outlined">edit</span>
+      </button>
+      <form method="POST" action="/materials/<%= m.id %>/delete" style="display:inline" onsubmit="return confirm('Xóa vật tư này?')">
+        <button type="submit" class="btn-icon btn-danger-icon" title="Xóa">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </form>
+    </div>
+  </div>
+  <% }) %>
 </div>
 
 <!-- Add Modal -->
